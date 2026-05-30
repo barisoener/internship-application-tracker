@@ -21,6 +21,12 @@ export const getApplication = async (req: Request, res: Response) => {
     //to change url coming string into number
     const id = Number(req.params.id);
 
+    if (isNaN(id)) {
+    return res.status(400).json({
+        message: "Invalid ID"
+    });
+}
+
     const application = await getApplicationById(id);
 
     if (!application) {
@@ -59,6 +65,13 @@ export const createApplication = async (req: Request, res: Response) => {
 export const editApplication = async (req: Request, res: Response) => {
 
     const id = Number(req.params.id);
+    
+    //to check whether the id is incorrect
+    if (isNaN(id)) {
+    return res.status(400).json({
+        message: "Invalid ID"
+    });
+}
 
     const { company, position, status } = req.body;
 
@@ -74,6 +87,7 @@ export const editApplication = async (req: Request, res: Response) => {
         position,
         status
     );
+
     //that id can not be exist in database
     if (!updatedApplication) {
         return res.status(404).json({
@@ -84,10 +98,18 @@ export const editApplication = async (req: Request, res: Response) => {
     res.json(updatedApplication);
 };
 
+
+
 export const removeApplication = async ( req: Request, res: Response) => {
 
     const id = Number(req.params.id);
 
+    //to check whether id is incorrect
+    if (isNaN(id)) {
+    return res.status(400).json({
+        message: "Invalid ID"
+    });
+}
     const deletedApplication = await deleteApplication(id);
 
     if (!deletedApplication) {
