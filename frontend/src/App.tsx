@@ -14,6 +14,8 @@ function App() {
   const [company, setCompany] = useState("");
   const [position, setPosition] = useState("");
   const [status, setStatus] = useState("");
+  
+  const [editingId, setEditingId] = useState<number | null>(null);
 
   // Event handler for Add button
   const handleAddApplication = async () => {
@@ -78,6 +80,50 @@ function App() {
 };
 
 
+const handleEditApplication = (application: Application) => {
+  setEditingId(application.id);
+  setCompany(application.company);
+  setPosition(application.position);
+  setStatus(application.status);
+};
+
+const handleUpdateApplication = async () => {
+  const response = await fetch(
+    `http://localhost:3000/applications/${editingId}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        company,
+        position,
+        status,
+      }),
+    }
+  );
+
+  const data = await response.json();
+
+  console.log(data);
+
+  const applicationsResponse = await fetch(
+    "http://localhost:3000/applications"
+  );
+
+  const applicationsData = await applicationsResponse.json();
+
+  setApplications(applicationsData);
+
+  setCompany("");
+  setPosition("");
+  setStatus("");
+
+  setEditingId(null);
+};
+
+
+
   useEffect(() => {
     fetch("http://localhost:3000/applications")
       .then((response) => response.json())
@@ -114,9 +160,17 @@ function App() {
         <p>Position: {position}</p>
         <p>Status: {status}</p>
 
-        <button onClick={handleAddApplication}>
-          Add Application
-        </button>
+        <button
+  onClick={
+    editingId !== null
+      ? handleUpdateApplication
+      : handleAddApplication
+  }
+>
+  {editingId !== null
+    ? "Update Application"
+    : "Add Application"}
+</button>
       </div>
 
       <h1>Internship Tracker</h1>
@@ -133,10 +187,18 @@ function App() {
   Delete
 </button>
 
+<button
+  onClick={() => handleEditApplication(application)}
+>
+  Edit
+</button>
+
 </div>
       ))}
     </div>
   );
 }
+
+
 
 export default App;
